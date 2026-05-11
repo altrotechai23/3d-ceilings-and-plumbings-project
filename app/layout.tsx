@@ -130,7 +130,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
+      <body className="font-sans antialiased min-h-screen flex flex-col overflow-x-hidden" suppressHydrationWarning>
         <Navbar />
         <main className="flex-1">
           {children}
