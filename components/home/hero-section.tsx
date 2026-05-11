@@ -226,7 +226,7 @@ export function HeroSection() {
                     size="lg"
                     className="
                       bg-primary
-                      text-primary-foreground
+                      text-white/80
                       hover:bg-primary/90
                       border border-primary
                       px-8
@@ -249,8 +249,8 @@ export function HeroSection() {
                     variant="outline"
                     size="lg"
                     className="
-                      border-white/20
-                      text-white
+                      border-primary/80
+                      text-primary/80
                       bg-white/5
                       hover:bg-white/10
                       px-8

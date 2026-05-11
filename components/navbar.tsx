@@ -188,7 +188,7 @@ export function Navbar() {
               size="sm"
               className="
                 bg-primary
-                text-primary-foreground
+                text-white
                 hover:bg-primary/90
                 px-6
                 uppercase
