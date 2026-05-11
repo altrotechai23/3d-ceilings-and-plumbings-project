@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  MessageCircle,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
 
 const whatsappNumber = '27788620502'
@@ -24,7 +29,8 @@ const slides = [
     title: (
       <>
         Premium <em className="not-italic text-primary">Ceiling</em>
-        <br />& Plumbing Solutions
+        <br />
+        & Plumbing Solutions
       </>
     ),
     description:
@@ -38,7 +44,8 @@ const slides = [
     title: (
       <>
         Modern <em className="not-italic text-primary">Plumbing</em>
-        <br />& Maintenance
+        <br />
+        & Maintenance
       </>
     ),
     description:
@@ -52,7 +59,8 @@ const slides = [
     title: (
       <>
         Stylish <em className="not-italic text-primary">Interior</em>
-        <br />Finishing
+        <br />
+        Finishing
       </>
     ),
     description:
@@ -66,7 +74,8 @@ const slides = [
     title: (
       <>
         Trusted <em className="not-italic text-primary">Building</em>
-        <br />Solutions
+        <br />
+        Solutions
       </>
     ),
     description:
@@ -77,30 +86,62 @@ const slides = [
 export function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0)
 
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // used to fully restart progress animation
+  const [progressKey, setProgressKey] = useState(0)
 
-  const activeSlide = useMemo(() => slides[currentSlide], [currentSlide])
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
+  const activeSlide = useMemo(
+    () => slides[currentSlide],
+    [currentSlide]
+  )
+
+  // AUTO SLIDER
   useEffect(() => {
-    timeoutRef.current = setTimeout(() => {
+    intervalRef.current = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length)
+
+      // restart progress animation
+      setProgressKey((prev) => prev + 1)
     }, AUTO_SLIDE_DURATION)
 
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
     }
-  }, [currentSlide])
+  }, [])
+
+  // RESET TIMER WHEN MANUALLY CHANGING SLIDES
+  const resetSlider = (newSlide: number) => {
+    setCurrentSlide(newSlide)
+
+    // restart progress animation
+    setProgressKey((prev) => prev + 1)
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
+
+    intervalRef.current = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length)
+
+      setProgressKey((prev) => prev + 1)
+    }, AUTO_SLIDE_DURATION)
+  }
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length)
+    resetSlider((currentSlide + 1) % slides.length)
   }
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
+    resetSlider(
+      (currentSlide - 1 + slides.length) % slides.length
+    )
   }
 
   return (
-    <section className="relative h-screen min-h-[850px] overflow-hidden bg-black">
+    <section className="relative h-screen min-h-screen overflow-hidden bg-black">
       {/* SLIDES */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -116,7 +157,7 @@ export function HeroSection() {
             initial={{ scale: 1 }}
             animate={{ scale: 1.12 }}
             transition={{
-              duration: AUTO_SLIDE_DURATION,
+              duration: AUTO_SLIDE_DURATION / 1000,
               ease: 'linear',
             }}
             className="absolute inset-0"
@@ -131,13 +172,13 @@ export function HeroSection() {
           <div className="absolute inset-0 bg-black/60" />
 
           {/* LEFT GRADIENT */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/20" />
         </motion.div>
       </AnimatePresence>
 
       {/* CONTENT */}
       <div className="relative z-20 flex items-center h-full">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12">
           <div className="max-w-4xl">
             <AnimatePresence mode="wait">
               <motion.div
@@ -245,30 +286,12 @@ export function HeroSection() {
         </span>
       </div>
 
-      {/* BOTTOM GROWING BORDER */}
-      <div className="absolute bottom-0 left-0 w-full z-30">
-        {/* background line */}
-        <div className="absolute inset-0 h-[3px] bg-white/10" />
-
-        {/* animated growing line */}
-        <motion.div
-          key={currentSlide}
-          initial={{ width: '0%' }}
-          animate={{ width: '100%' }}
-          transition={{
-            duration: AUTO_SLIDE_DURATION,
-            ease: 'linear',
-          }}
-          className="h-[3px] bg-primary"
-        />
-      </div>
-
       {/* SLIDE DOTS */}
       <div className="absolute bottom-14 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
         {slides.map((_, index) => (
           <button
             key={index}
-            onClick={() => setCurrentSlide(index)}
+            onClick={() => resetSlider(index)}
             className="group"
           >
             <div
@@ -318,6 +341,33 @@ export function HeroSection() {
         >
           <ChevronRight className="w-5 h-5" />
         </button>
+      </div>
+
+      {/* BOTTOM GROWING BORDER */}
+      <div className="absolute bottom-0 left-0 w-full z-40">
+        <div className="relative h-[4px] w-full bg-black/70 overflow-hidden">
+          {/* SEGMENT LINES */}
+          <div className="absolute inset-0 flex">
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="flex-1 border-r border-white/5 last:border-r-0"
+              />
+            ))}
+          </div>
+
+          {/* ANIMATED PROGRESS */}
+          <motion.div
+            key={progressKey}
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{
+              duration: AUTO_SLIDE_DURATION / 1000,
+              ease: 'linear',
+            }}
+            className="absolute left-0 top-0 h-full bg-primary"
+          />
+        </div>
       </div>
     </section>
   )
